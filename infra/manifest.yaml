@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: pingpong-a
-          image: pingpong:istio
+          image: avsprashant/test:main-dac44f
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
@@ -174,7 +174,7 @@ spec:
     spec:
       containers:
         - name: pingpong-b
-          image: pingpong:istio
+          image: avsprashant/test:main-dac44f
           imagePullPolicy: Never
           ports:
             - containerPort: 8080

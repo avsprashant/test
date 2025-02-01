@@ -67,16 +67,31 @@ func startPinging(cfg *Config, wg *sync.WaitGroup) {
 }
 
 func startAppServer(cfg *Config, wg *sync.WaitGroup) {
-	defer wg.Done()
+    defer wg.Done()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("pong"))
-	})
+    // Instrument the /ping handler to count total requests and failures
+    pingHandler := func(w http.ResponseWriter, r *http.Request) {
+        // Increment count of incoming /ping requests
+        pingRequestsReceived.Inc()
 
-	slog.With(slog.Any("port", cfg.Service.Port)).Info("app server started")
-	err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.Service.Port), mux)
-	if err != nil {
-		slog.Error("error with listen and serve", err)
-	}
+        // Simulate a "failure" if the request is not GET
+        if r.Method != http.MethodGet {
+            w.WriteHeader(http.StatusMethodNotAllowed)
+            w.Write([]byte("Method Not Allowed\n"))
+            pingFailuresTotal.Inc()
+            return
+        }
+
+        // Otherwise, respond with "pong"
+        w.Write([]byte("pong"))
+    }
+
+    mux := http.NewServeMux()
+    mux.HandleFunc("/ping", pingHandler)
+
+    slog.With(slog.Any("port", cfg.Service.Port)).Info("app server started")
+    err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.Service.Port), mux)
+    if err != nil {
+        slog.Error("error with listen and serve", err)
+    }
 }

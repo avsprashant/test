@@ -1,5 +1,33 @@
+## ESGBook
+
+# Stack/Tools used:
+1) Github Actions  - CI
+2) Go App with ```/ping``` and ```/metrics``` routes
+3) docker       - container runtime used, other alternaives are containerd.
+4) kubernetes   - orchestrator
+
+## Testing in local/dev env:
+- ```SERVICE__PORT=8080 TARGET=http://localhost:8080/ping  go run .```                #start and test app
+- ```CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o pingpong```                 #now build executable
+- ```docker build -t pingpong . -f Dockerfile.multistage```                           #build image
+- ```docker run -p 8080:8080 -p 9080:9080 --env-file .env  pingpong```                 #run image
+- Metrics:
+- Added ```ping_requests_received_total``` and ```ping_failures_total``` metrics in metrics.go and modified startAppServer function in main.go accordingly
+- Go to ```http://localhost:9080/-/metrics``` to view the metrics
+- Simulating a failure request to observe ```ping_failures_total``` metrics using ```curl -X POST http://localhost:3030/ping```
+
+## Deployment in test/dev namespace in local kubernetes
+
+## Deployment in prod kubernetes cluster
+
+- Highlight the drawback of NetworkPolicies (https://kubernetes.io/docs/concepts/services-networking/network-policies/#what-you-can-t-do-with-network-policies-at-least-not-yet)
+The ability to explicitly deny policies (currently the model for NetworkPolicies are deny by default, with only the ability to add allow rules).
+block egress to a particular ip/cidr while allowing rest all.
+It currently can
+block all ingress or egress.
+block all and allow only a particular ip/cidr.
+
 Application Deployment:
-    Created multi stage build Dockerfile in order to have light weight image
     Manifest Changes:
         Updated the service to have the right selector and namespace
         Updated the TARGET env variable
@@ -45,3 +73,9 @@ Few other featues that can be implemented to make it Production ready:
         Helm charts for kubernetes objects
         GitOps(ArgoCD)
         CI/CD pipelines 
+
+
+# Improvements:
+- Code is not loading values from ```.env``` file. Maybe koanf library doesn't reads environment variables from your system and not from file or maybe we need to use different library ```godotenv```
+- Helm chart can be created 
+

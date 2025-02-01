@@ -8,10 +8,26 @@ import (
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/client_golang/prometheus"
+)
+var (
+    pingRequestsReceived = prometheus.NewCounter(prometheus.CounterOpts{
+        Name: "ping_requests_received_total",
+        Help: "Total number of incoming /ping requests received",
+    })
+
+    pingFailuresTotal = prometheus.NewCounter(prometheus.CounterOpts{
+        Name: "ping_failures_total",
+        Help: "Total number of failed /ping requests",
+    })
 )
 
+// initMetrics registers only metrics we want to track
 func initMetrics() {
-	// TASK: What metrics would be useful for this type of service?
+	prometheus.MustRegister(
+        pingRequestsReceived,
+        pingFailuresTotal,
+    )
 }
 
 func startMetricsServer(cfg ConfigMetrics, wg *sync.WaitGroup) {

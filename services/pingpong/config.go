@@ -25,6 +25,7 @@ type ConfigMetrics struct {
 	Port int    `config:"port"`
 }
 
+//increase tickms to 10secs
 var defaultConfig = Config{
 	Target: "http://ping-a:8080",
 	TickMS: 100,
