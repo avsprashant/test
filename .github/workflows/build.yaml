@@ -4,7 +4,7 @@ on: [pull_request, push]
 
 jobs:
 
-  which_branch:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: extract branch name on push event
@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./services/pingpong
-          file: ./services/pingpong/Dockerfile
+          file: ./services/pingpong/Dockerfile.multistage
           push: true
           platforms: linux/amd64,linux/arm64,linux/ppc64le
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/test:${{ env.BRANCH }}-${{ env.HASH }}
